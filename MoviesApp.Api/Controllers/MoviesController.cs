@@ -1,15 +1,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesApp.Api.Data;
 using MoviesApp.Api.Models;
+using AuthorizationOptions = MoviesApp.Api.Options.AuthorizationOptions;
 
 namespace MoviesApp.Api.Controllers
 {
     [Route("api/movies")]
     [ApiController]
+    [Authorize(AuthorizationOptions.ClientIdPolicyName)]
     public class MoviesController : ControllerBase
     {
         private readonly MoviesApiContext _context;
