@@ -1,8 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoviesApp.Api", "MoviesApp.Api\MoviesApp.Api.csproj", "{63089C92-5179-4F88-A5C6-5775F27252D1}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31129.286
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoviesApp.Api", "MoviesApp.Api\MoviesApp.Api.csproj", "{63089C92-5179-4F88-A5C6-5775F27252D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityServer", "IdentityServer\IdentityServer.csproj", "{E9286576-BA26-4A54-AD63-8E2D41D8A7BF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityServer", "IdentityServer\IdentityServer.csproj", "{E9286576-BA26-4A54-AD63-8E2D41D8A7BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoviesApp.Client", "MoviesApp.Client\MoviesApp.Client.csproj", "{6B4FDD63-5480-4F8F-8663-D600CDFF08F8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +23,15 @@ Global
 		{E9286576-BA26-4A54-AD63-8E2D41D8A7BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9286576-BA26-4A54-AD63-8E2D41D8A7BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9286576-BA26-4A54-AD63-8E2D41D8A7BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B4FDD63-5480-4F8F-8663-D600CDFF08F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B4FDD63-5480-4F8F-8663-D600CDFF08F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B4FDD63-5480-4F8F-8663-D600CDFF08F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B4FDD63-5480-4F8F-8663-D600CDFF08F8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A22CB89A-7A83-4B00-9F63-0536932B3051}
 	EndGlobalSection
 EndGlobal
