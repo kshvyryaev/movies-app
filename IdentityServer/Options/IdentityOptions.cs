@@ -1,4 +1,4 @@
-namespace IdentityServer
+namespace IdentityServer.Options
 {
     public class IdentityOptions
     {

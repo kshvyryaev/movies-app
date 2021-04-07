@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using IdentityServer.Options;
 
 namespace IdentityServer
 {
@@ -18,6 +19,8 @@ namespace IdentityServer
         
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllersWithViews();
+
             var identityOptions = new IdentityOptions();
             _configuration.GetSection(IdentityOptions.SectionKey).Bind(identityOptions);
             
@@ -34,16 +37,17 @@ namespace IdentityServer
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseStaticFiles();
+
             app.UseRouting();
 
             app.UseIdentityServer();
 
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Identity server");
-                });
+                endpoints.MapDefaultControllerRoute();
             });
         }
     }
