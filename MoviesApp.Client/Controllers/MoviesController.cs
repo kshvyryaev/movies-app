@@ -1,10 +1,12 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MoviesApp.Client.Clients;
 using MoviesApp.Client.Models;
 
 namespace MoviesApp.Client.Controllers
 {
+    [Authorize]
     public class MoviesController : Controller
     {
         private readonly IMoviesClient _moviesClient;

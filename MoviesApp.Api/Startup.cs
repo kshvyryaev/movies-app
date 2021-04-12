@@ -41,10 +41,10 @@ namespace MoviesApp.Api
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy(AuthorizationOptions.ClientIdPolicyName, policy
+                options.AddPolicy(AuthorizationOptions.ApiClientIdPolicyName, policy
                     => policy.RequireClaim(
-                        authorizationOptions.ClientIdPolicy.ClientIdType,
-                        authorizationOptions.ClientIdPolicy.ClientIdValue));
+                        authorizationOptions.ApiClientIdPolicy.ClientIdType,
+                        authorizationOptions.ApiClientIdPolicy.ClientIdValue));
             });
             
             services.AddDbContext<MoviesApiContext>(options

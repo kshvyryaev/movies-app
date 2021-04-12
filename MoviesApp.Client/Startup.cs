@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MoviesApp.Client.Clients;
+using MoviesApp.Client.Options;
 
 namespace MoviesApp.Client
 {
@@ -20,6 +23,31 @@ namespace MoviesApp.Client
         {
             services.AddScoped<IMoviesClient, MoviesClient>();
 
+            var authenticationOptions = new AuthenticationOptions();
+            _configuration.GetSection(AuthenticationOptions.SectionKey).Bind(authenticationOptions);
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+            })
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
+            {
+                options.Authority = authenticationOptions.OpenIdConnect.Authority;
+                options.ClientId = authenticationOptions.OpenIdConnect.ClientId;
+                options.ClientSecret = authenticationOptions.OpenIdConnect.ClientSecret;
+                options.ResponseType = authenticationOptions.OpenIdConnect.ResponseType;
+
+                foreach (var scope in authenticationOptions.OpenIdConnect.Scope)
+                {
+                    options.Scope.Add(scope);
+                }
+
+                options.SaveTokens = authenticationOptions.OpenIdConnect.SaveTokens;
+                options.GetClaimsFromUserInfoEndpoint = authenticationOptions.OpenIdConnect.GetClaimsFromUserInfoEndpoint;
+            });
+
             services.AddControllersWithViews();
         }
 
@@ -35,9 +63,12 @@ namespace MoviesApp.Client
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
+
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

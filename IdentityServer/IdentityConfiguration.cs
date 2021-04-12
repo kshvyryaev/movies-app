@@ -1,96 +1,86 @@
 using System.Collections.Generic;
 using System.Security.Claims;
-using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Test;
+using IdentityModel;
 using IdentityServer.Options;
-using System.Text.Json;
 
 namespace IdentityServer
 {
     public static class IdentityConfiguration
     {
-        public static List<Client> GetClients(IdentityOptions options) =>
-            new List<Client>
-            {
-                new Client
-                {
-                    ClientId = options.MoviesClientId,
-                    AllowedGrantTypes = GrantTypes.ClientCredentials,
-                    ClientSecrets =
-                    {
-                        new Secret(options.MoviesClientSecret.Sha256())
-                    },
-                    AllowedScopes = { options.MoviesApiScopeName }
-                }
-            };
-
-        public static List<IdentityResource> GetIdentityResources(IdentityOptions options) =>
-            new List<IdentityResource>
-            {
-                
-            };
-        
-        public static List<ApiResource> GetApiResources(IdentityOptions options) =>
-            new List<ApiResource>
-            {
-                
-            };
-        
-        public static List<ApiScope> GetApiScopes(IdentityOptions options) =>
-            new List<ApiScope>
-            {
-                new ApiScope(options.MoviesApiScopeName, options.MoviesApiScopeDisplayName)
-            };
-
-        public static List<TestUser> GetTestUsers()
+        public static List<Client> GetClients(IdentityOptions options) => new()
         {
-            var address = new
+            new Client
             {
-                street_address = "One Hacker Way",
-                locality = "Heidelberg",
-                postal_code = 69118,
-                country = "Germany"
-            };
-
-            var testUsers = new List<TestUser>
-            {
-                new TestUser
+                ClientName = options.MoviesApiClient.ClientName,
+                ClientId = options.MoviesApiClient.ClientId,
+                ClientSecrets =
                 {
-                    SubjectId = "818727",
-                    Username = "alice",
-                    Password = "alice",
-                    Claims =
-                    {
-                        new Claim(JwtClaimTypes.Name, "Alice Smith"),
-                        new Claim(JwtClaimTypes.GivenName, "Alice"),
-                        new Claim(JwtClaimTypes.FamilyName, "Smith"),
-                        new Claim(JwtClaimTypes.Email, "AliceSmith@email.com"),
-                        new Claim(JwtClaimTypes.EmailVerified, "true", ClaimValueTypes.Boolean),
-                        new Claim(JwtClaimTypes.WebSite, "http://alice.com"),
-                        new Claim(JwtClaimTypes.Address, JsonSerializer.Serialize(address), IdentityServerConstants.ClaimValueTypes.Json)
-                    }
+                    new Secret(options.MoviesApiClient.ClientSecret.Sha256())
                 },
-                new TestUser
+                AllowedGrantTypes = GrantTypes.ClientCredentials,
+                AllowedScopes =
                 {
-                    SubjectId = "88421113",
-                    Username = "bob",
-                    Password = "bob",
-                    Claims =
-                    {
-                        new Claim(JwtClaimTypes.Name, "Bob Smith"),
-                        new Claim(JwtClaimTypes.GivenName, "Bob"),
-                        new Claim(JwtClaimTypes.FamilyName, "Smith"),
-                        new Claim(JwtClaimTypes.Email, "BobSmith@email.com"),
-                        new Claim(JwtClaimTypes.EmailVerified, "true", ClaimValueTypes.Boolean),
-                        new Claim(JwtClaimTypes.WebSite, "http://bob.com"),
-                        new Claim(JwtClaimTypes.Address, JsonSerializer.Serialize(address), IdentityServerConstants.ClaimValueTypes.Json)
-                    }
+                    options.MoviesApiScope.ScopeName
                 }
-            };
+            },
+            new Client
+            {
+                ClientName = options.MoviesMvcClient.ClientName,
+                ClientId = options.MoviesMvcClient.ClientId,
+                ClientSecrets =
+                {
+                    new Secret(options.MoviesMvcClient.ClientSecret.Sha256())
+                },
+                AllowedGrantTypes = GrantTypes.Code,
+                AllowRememberConsent = false,
+                RedirectUris =
+                {
+                    options.MoviesMvcClient.RedirectUri
+                },
+                PostLogoutRedirectUris =
+                {
+                    options.MoviesMvcClient.PostLogoutRedirectUri
+                },
+                AllowedScopes =
+                {
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Profile
+                }
+            }
+        };
 
-            return testUsers;
-        }
+        public static List<IdentityResource> GetIdentityResources() => new()
+        {
+            new IdentityResources.OpenId(),
+            new IdentityResources.Profile()
+        };
+        
+        public static List<ApiResource> GetApiResources() => new()
+        {
+                
+        };
+        
+        public static List<ApiScope> GetApiScopes(IdentityOptions options) => new()
+        {
+            new ApiScope(options.MoviesApiScope.ScopeName, options.MoviesApiScope.ScopeDisplayName)
+        };
+
+        public static List<TestUser> GetTestUsers() => new()
+        {
+            new TestUser
+            {
+                SubjectId = "20266D24-AADE-4D7A-8202-20FC93653D29",
+                Username = "kshv",
+                Password = "kshv",
+                Claims =
+                {
+                    new Claim(JwtClaimTypes.GivenName, "Konstantin"),
+                    new Claim(JwtClaimTypes.FamilyName, "Shvyryaev")
+                }
+            }
+        };
     }
 }
