@@ -1,49 +1,87 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Mime;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using MoviesApp.Client.Models;
+using MoviesApp.Client.Options;
+using Newtonsoft.Json;
 
 namespace MoviesApp.Client.Clients
 {
     public class MoviesClient : IMoviesClient
     {
-        public Task<List<MovieViewModel>> GetMoviesAsync()
-        {
-            var moviesMock = new List<MovieViewModel>
-            {
-                new MovieViewModel
-                {
-                    Id = 1,
-                    Title = "Title 1",
-                    Genre = "Genre 1",
-                    Rating = "1.1",
-                    ReleaseDate = new DateTime(2001, 1, 1),
-                    ImageUrl = "Image url 1",
-                    Owner = "Owner 1"
-                }
-            };
+        private readonly HttpClient _httpClient;
+        private readonly MoviesClientOptions _moviesClientOptions;
 
-            return Task.FromResult(moviesMock);
+        public MoviesClient(HttpClient httpClient, IOptions<MoviesClientOptions> moviesClientOptions)
+        {
+            _httpClient = httpClient;
+            _moviesClientOptions = moviesClientOptions.Value;
+        }
+        
+        public async Task<List<MovieViewModel>> GetMoviesAsync()
+        {
+            var response = await _httpClient.GetAsync(_moviesClientOptions.Uri);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            var result = JsonConvert.DeserializeObject<List<MovieViewModel>>(content);
+
+            return result;
         }
 
-        public Task<MovieViewModel> GetMovieAsync(int id)
+        public async Task<MovieViewModel> GetMovieAsync(int id)
         {
-            throw new NotImplementedException();
+            var requestUri = $"{_moviesClientOptions.Uri}/{id}";
+            var response = await _httpClient.GetAsync(requestUri);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            var result = JsonConvert.DeserializeObject<MovieViewModel>(content);
+
+            return result;
         }
 
-        public Task<MovieViewModel> CreateMovieAsync(MovieViewModel movie)
+        public async Task<MovieViewModel> CreateMovieAsync(MovieViewModel movie)
         {
-            throw new NotImplementedException();
+            var requestJson = JsonConvert.SerializeObject(movie);
+            var requestContent = new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json);
+            
+            var response = await _httpClient.PostAsync(_moviesClientOptions.Uri, requestContent);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            var result = JsonConvert.DeserializeObject<MovieViewModel>(content);
+
+            return result;
         }
 
-        public Task<MovieViewModel> UpdateMovieAsync(MovieViewModel movie)
+        public async Task<MovieViewModel> UpdateMovieAsync(MovieViewModel movie)
         {
-            throw new NotImplementedException();
+            var requestUri = $"{_moviesClientOptions.Uri}/{movie.Id}";
+            var requestJson = JsonConvert.SerializeObject(movie);
+            var requestContent = new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json);
+            
+            var response = await _httpClient.PutAsync(requestUri, requestContent);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            var result = JsonConvert.DeserializeObject<MovieViewModel>(content);
+
+            return result;
         }
 
-        public Task DeleteMovieAsync(int id)
+        public async Task DeleteMovieAsync(int id)
         {
-            throw new NotImplementedException();
+            var requestUri = $"{_moviesClientOptions.Uri}/{id}";
+            var response = await _httpClient.DeleteAsync(requestUri);
+            response.EnsureSuccessStatusCode();
         }
     }
 }

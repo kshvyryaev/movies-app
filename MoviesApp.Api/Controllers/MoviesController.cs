@@ -28,8 +28,8 @@ namespace MoviesApp.Api.Controllers
             return await _context.Movies.ToListAsync();
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Movie>> GetMovie(int id)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<Movie>> GetMovie([FromRoute] int id)
         {
             var movie = await _context.Movies.FindAsync(id);
 
@@ -40,9 +40,18 @@ namespace MoviesApp.Api.Controllers
 
             return movie;
         }
+        
+        [HttpPost]
+        public async Task<ActionResult<Movie>> PostMovie([FromBody] Movie movie)
+        {
+            await _context.Movies.AddAsync(movie);
+            await _context.SaveChangesAsync();
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult<Movie>> PutMovie(int id, Movie movie)
+            return CreatedAtAction(nameof(GetMovie), new { id = movie.Id }, movie);
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<Movie>> PutMovie([FromRoute] int id, [FromBody] Movie movie)
         {
             if (id != movie.Id)
             {
@@ -70,17 +79,8 @@ namespace MoviesApp.Api.Controllers
             return NoContent();
         }
 
-        [HttpPost]
-        public async Task<ActionResult<Movie>> PostMovie(Movie movie)
-        {
-            await _context.Movies.AddAsync(movie);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetMovie), new { id = movie.Id }, movie);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMovie(int id)
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteMovie([FromRoute] int id)
         {
             var movie = await _context.Movies.FindAsync(id);
 

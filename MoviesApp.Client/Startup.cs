@@ -1,3 +1,6 @@
+using System;
+using System.Net.Http.Headers;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
@@ -5,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Net.Http.Headers;
 using MoviesApp.Client.Clients;
 using MoviesApp.Client.Options;
 
@@ -21,7 +25,19 @@ namespace MoviesApp.Client
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IMoviesClient, MoviesClient>();
+            services.Configure<TokenClientOptions>(_configuration.GetSection(TokenClientOptions.SectionKey));
+            services.Configure<MoviesClientOptions>(_configuration.GetSection(MoviesClientOptions.SectionKey));
+            
+            services.AddTransient<AuthenticationHandler>();
+
+            services.AddHttpClient<ITokenClient, TokenClient>()
+                .AddPolicyHandler(HttpPolicies.RetryPolicy)
+                .AddPolicyHandler(HttpPolicies.CircuitBreakerPatternPolicy);
+
+            services.AddHttpClient<IMoviesClient, MoviesClient>()
+                .AddHttpMessageHandler<AuthenticationHandler>()
+                .AddPolicyHandler(HttpPolicies.RetryPolicy)
+                .AddPolicyHandler(HttpPolicies.CircuitBreakerPatternPolicy);
 
             var authenticationOptions = new AuthenticationOptions();
             _configuration.GetSection(AuthenticationOptions.SectionKey).Bind(authenticationOptions);
