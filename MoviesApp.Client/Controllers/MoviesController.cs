@@ -16,6 +16,12 @@ namespace MoviesApp.Client.Controllers
             _moviesClient = moviesClient;
         }
 
+        [Authorize(Roles = "admin")]
+        public IActionResult OnlyAdmin()
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
         public async Task<IActionResult> Index()
         {
             return View(await _moviesClient.GetMoviesAsync());

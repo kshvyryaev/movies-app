@@ -12,6 +12,6 @@ namespace MoviesApp.Api.Options
     {
         public string ClientIdType { get; set; }
 
-        public string ClientIdValue { get; set; }
+        public string[] ClientIdValues { get; set; }
     }
 }

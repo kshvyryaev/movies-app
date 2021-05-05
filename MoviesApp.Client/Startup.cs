@@ -1,6 +1,6 @@
 using System;
-using System.Net.Http.Headers;
-using System.Net.Mime;
+using IdentityModel;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
@@ -8,9 +8,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Net.Http.Headers;
+using Microsoft.IdentityModel.Tokens;
 using MoviesApp.Client.Clients;
 using MoviesApp.Client.Options;
+using AuthenticationOptions = MoviesApp.Client.Options.AuthenticationOptions;
 
 namespace MoviesApp.Client
 {
@@ -25,19 +26,20 @@ namespace MoviesApp.Client
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<TokenClientOptions>(_configuration.GetSection(TokenClientOptions.SectionKey));
-            services.Configure<MoviesClientOptions>(_configuration.GetSection(MoviesClientOptions.SectionKey));
-            
             services.AddTransient<AuthenticationHandler>();
 
-            services.AddHttpClient<ITokenClient, TokenClient>()
-                .AddPolicyHandler(HttpPolicies.RetryPolicy)
-                .AddPolicyHandler(HttpPolicies.CircuitBreakerPatternPolicy);
-
-            services.AddHttpClient<IMoviesClient, MoviesClient>()
+            var apiUrisOptions = new ApiUrisOptions();
+            _configuration.GetSection(ApiUrisOptions.SectionKey).Bind(apiUrisOptions);
+            
+            services.AddHttpClient<IMoviesClient, MoviesClient>(httpClient =>
+                {
+                    httpClient.BaseAddress = new Uri(apiUrisOptions.MoviesApiUri);
+                })
                 .AddHttpMessageHandler<AuthenticationHandler>()
                 .AddPolicyHandler(HttpPolicies.RetryPolicy)
                 .AddPolicyHandler(HttpPolicies.CircuitBreakerPatternPolicy);
+
+            services.AddHttpContextAccessor();
 
             var authenticationOptions = new AuthenticationOptions();
             _configuration.GetSection(AuthenticationOptions.SectionKey).Bind(authenticationOptions);
@@ -59,9 +61,17 @@ namespace MoviesApp.Client
                 {
                     options.Scope.Add(scope);
                 }
+                
+                options.ClaimActions.MapUniqueJsonKey(JwtClaimTypes.Role,JwtClaimTypes.Role);
 
                 options.SaveTokens = authenticationOptions.OpenIdConnect.SaveTokens;
                 options.GetClaimsFromUserInfoEndpoint = authenticationOptions.OpenIdConnect.GetClaimsFromUserInfoEndpoint;
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    NameClaimType = JwtClaimTypes.GivenName,
+                    RoleClaimType = JwtClaimTypes.Role
+                };
             });
 
             services.AddControllersWithViews();

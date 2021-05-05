@@ -2,23 +2,29 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using IdentityModel.Client;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace MoviesApp.Client.Clients
 {
     public class AuthenticationHandler : DelegatingHandler
     {
-        private readonly ITokenClient _tokenClient;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthenticationHandler(ITokenClient tokenClient)
+        public AuthenticationHandler(IHttpContextAccessor httpContextAccessor)
         {
-            _tokenClient = tokenClient;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var token = await _tokenClient.GetTokenAsync();
-            
-            request.SetBearerToken(token.AccessToken);
+            var accessToken = await _httpContextAccessor.HttpContext.GetTokenAsync(OpenIdConnectParameterNames.AccessToken);
+
+            if (!string.IsNullOrWhiteSpace(accessToken))
+            {
+                request.SetBearerToken(accessToken);
+            }
             
             return await base.SendAsync(request, cancellationToken);
         }

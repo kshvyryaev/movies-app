@@ -3,27 +3,25 @@ using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using MoviesApp.Client.Models;
-using MoviesApp.Client.Options;
 using Newtonsoft.Json;
 
 namespace MoviesApp.Client.Clients
 {
     public class MoviesClient : IMoviesClient
     {
+        private const string ResourceUri = "/api/movies";
+        
         private readonly HttpClient _httpClient;
-        private readonly MoviesClientOptions _moviesClientOptions;
 
-        public MoviesClient(HttpClient httpClient, IOptions<MoviesClientOptions> moviesClientOptions)
+        public MoviesClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _moviesClientOptions = moviesClientOptions.Value;
         }
         
         public async Task<List<MovieViewModel>> GetMoviesAsync()
         {
-            var response = await _httpClient.GetAsync(_moviesClientOptions.Uri);
+            var response = await _httpClient.GetAsync(ResourceUri);
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
@@ -35,7 +33,7 @@ namespace MoviesApp.Client.Clients
 
         public async Task<MovieViewModel> GetMovieAsync(int id)
         {
-            var requestUri = $"{_moviesClientOptions.Uri}/{id}";
+            var requestUri = $"{ResourceUri}/{id}";
             var response = await _httpClient.GetAsync(requestUri);
             response.EnsureSuccessStatusCode();
 
@@ -51,7 +49,7 @@ namespace MoviesApp.Client.Clients
             var requestJson = JsonConvert.SerializeObject(movie);
             var requestContent = new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json);
             
-            var response = await _httpClient.PostAsync(_moviesClientOptions.Uri, requestContent);
+            var response = await _httpClient.PostAsync(ResourceUri, requestContent);
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
@@ -63,7 +61,7 @@ namespace MoviesApp.Client.Clients
 
         public async Task<MovieViewModel> UpdateMovieAsync(MovieViewModel movie)
         {
-            var requestUri = $"{_moviesClientOptions.Uri}/{movie.Id}";
+            var requestUri = $"{ResourceUri}/{movie.Id}";
             var requestJson = JsonConvert.SerializeObject(movie);
             var requestContent = new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json);
             
@@ -79,7 +77,7 @@ namespace MoviesApp.Client.Clients
 
         public async Task DeleteMovieAsync(int id)
         {
-            var requestUri = $"{_moviesClientOptions.Uri}/{id}";
+            var requestUri = $"{ResourceUri}/{id}";
             var response = await _httpClient.DeleteAsync(requestUri);
             response.EnsureSuccessStatusCode();
         }
